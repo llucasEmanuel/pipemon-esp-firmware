@@ -5,6 +5,17 @@
 #include <ArduinoJson.h> // Inclua a nova biblioteca
 #include <Temperature.h>
 #include <LoRa.h>
+#include <SPI.h>
+
+// Pinos de configuração do LoRa
+#define SCK   5
+#define MISO  19
+#define MOSI  27
+#define SS    18
+#define RST   14
+#define DIO0  26
+
+#define BAND 915E6  
 
 // --- Configurações de Rede ---
 const char* ssid = "ROBOCIN_CORE";
@@ -37,12 +48,12 @@ void setup_wifi() {
   Serial.print("Conectando-se a ");
   Serial.println(ssid);
 
-  WiFi.begin(ssid, password);
+ // WiFi.begin(ssid, password);
 
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
+  // while (WiFi.status() != WL_CONNECTED) {
+  //   delay(500);
+  //   Serial.print(".");
+  // }
 
   Serial.println("");
   Serial.println("WiFi conectado!");
@@ -75,6 +86,15 @@ void setup() {
   
   tempSensor.init();
   
+  SPI.begin(SCK, MISO, MOSI, SS);
+  LoRa.setPins(SS, RST, DIO0);
+
+  if (!LoRa.begin(BAND)) {
+    Serial.println("Erro ao inicializar LoRa");
+    while(1);
+  }
+  LoRa.setSpreadingFactor(7);
+
   setup_wifi();
   
   // Configurações do servidor MQTT
@@ -84,12 +104,37 @@ void setup() {
 
 void loop() {
   if (!client.connected()) {
-    reconnect();
+    //reconnect();
   }
-  client.loop();
+  //client.loop();
 
   long now = millis();
   if (now - lastMsg > 5000) {
+
+    // Verificação de pacotes do LoRa
+    int packetSize = 0;
+    do {
+      packetSize = LoRa.parsePacket();
+    } while (!packetSize);
+    if (packetSize) {
+      String data = "";
+      while (LoRa.available()) {
+        data += (char)LoRa.read();
+      }
+
+      int commaInd = data.indexOf(',');
+      if (commaInd != -1) {
+        String tempStr = data.substring(0, commaInd);
+        String flowStr = data.substring(commaInd+1);
+
+        double tempIn = tempStr.toDouble();
+        double flowIn = flowStr.toDouble();
+
+        Serial.print("Temperatura de Entrada: "); Serial.print(tempIn);
+        Serial.print(" | Vazão de Entrada: "); Serial.println(flowIn);
+      }
+    }
+
     lastMsg = now;
     value++; // Incremento para simular mudança nos dados
 
@@ -119,8 +164,8 @@ void loop() {
     serializeJson(doc, buffer);
 
     // 4. Publicar no tópico
-    Serial.print("Enviando JSON para MQTT: ");
-    Serial.println(buffer);
-    client.publish(publishTopic, buffer);
+    //Serial.print("Enviando JSON para MQTT: ");
+    //Serial.println(buffer);
+    //client.publish(publishTopic, buffer);
   }
 }
