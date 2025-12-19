@@ -5,6 +5,7 @@
 #include <ArduinoJson.h> // Inclua a nova biblioteca
 #include <Temperature.h>
 #include <LoRa.h>
+#include <Flow.h>
 
 // --- Configurações de Rede ---
 const char* ssid = "ROBOCIN_CORE";
@@ -104,8 +105,8 @@ void loop() {
 
     // 2. Preencher com os campos solicitados
     doc["device_id"] = clientID;
-    doc["temperature_in"] = temp;  // Simulado
-    doc["temperature_out"] = 22.1 + (float)value / 12.0; // Simulado
+    doc["temperature_in"] = 22.1 + (float)value / 12.0; // Simulado
+    doc["temperature_out"] = temp;
     doc["flow_in"] = 1.5 + (float)value / 5.0;           // Simulado
     doc["flow_out"] = 1.4 + (float)value / 5.0;          // Simulado
     
