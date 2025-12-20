@@ -3,10 +3,10 @@
 Firmware para um sistema LoRa + ESP32 que envia/recebe leituras de temperatura e vazão e publica via MQTT a partir de um gateway.
 
 Arquivos importantes
-- /src/main_gateway.cpp — código do gateway (recebe LoRa, lê sensores locais e publica em MQTT)
-- /test/main_tx.cpp — código do transmissor (lê sensores e envia pacotes LoRa)
-- /scripts/flow_simulator.py — gera os valores de vazão simulados e escreve em logs/flow.txt
-- /scripts/leak_simulator.py — gera os valores de vazão simulados com vazamento e escreve em logs/leak.txt
+- `/src/main_gateway.cpp` — código do gateway (recebe LoRa, lê sensores locais e publica em MQTT)
+- `/test/main_tx.cpp` — código do transmissor (lê sensores e envia pacotes LoRa)
+- `/scripts/flow_simulator.py` — gera os valores de vazão simulados e escreve em logs/flow.txt
+- `/scripts/leak_simulator.py` — gera os valores de vazão simulados com vazamento e escreve em logs/leak.txt
 
 Principais definições (verificar nos fontes)
 - LoRa pins:
@@ -19,13 +19,13 @@ Principais definições (verificar nos fontes)
 
 Observação importante para upload/testruns
 - Para compilar/flashar o transmissor (main_tx), mova o arquivo do diretório `test` para `src`. Exemplo (Linux):
-  - mv test/main_tx.cpp src/main.cpp
+  - ```mv test/main_tx.cpp src/main.cpp```
 - Para testar/manter o gateway sem sobrescrever o build principal, mova o gateway para `test`:
-  - mv src/main_gateway.cpp test/main_gateway.cpp
+  - ```mv src/main_gateway.cpp test/main_gateway.cpp```
 
 Exemplo de comandos (PlatformIO)
 - Build + upload (após mover o arquivo correto para `src`):
-  - pio run -t upload
+  - ```pio run -t upload```
 
 Formato do payload enviado para MQTT
 - JSON com campos:
